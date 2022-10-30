@@ -36,12 +36,9 @@ impl EguiMq {
     /// Can only be used between [`Self::begin_frame`] and [`Self::end_frame`].
     pub fn egui_ctx(&self) -> &egui::Context { &self.egui_ctx }
 
-    /// Run the ui code for one frame.
-    pub fn run(
+    pub fn on_frame_start(
         &mut self,
-        gl_p_ctx: &mut gl_p::Context,
-        win_ctx: &mut gl_p::window::WindowContext,
-        mut run_ui: impl FnMut(&mut gl_p::Context, &mut gl_p::window::WindowContext, &egui::Context),
+        gl_p_ctx: &mut gl_p::Context
     ) {
         input::on_frame_start(&mut self.egui_input, &self.egui_ctx, gl_p_ctx);
 
@@ -51,16 +48,19 @@ impl EguiMq {
             self.egui_input.pixels_per_point = Some(self.native_dpi_scale);
         }
 
-        let full_output = self
-            .egui_ctx
-            .run(self.egui_input.take(), |egui_ctx| run_ui(gl_p_ctx, win_ctx, egui_ctx));
+        self.egui_ctx.begin_frame(self.egui_input.take());
+    }
 
+    pub fn on_frame_end(
+        &mut self,
+        win_ctx: &mut gl_p::window::WindowContext
+    ) {
         let egui::FullOutput {
             platform_output,
             repaint_after: _, // miniquad always runs at full framerate
             textures_delta,
             shapes,
-        } = full_output;
+        } = self.egui_ctx.end_frame();
 
         if self.shapes.is_some() {
             eprintln!("Egui contents not drawn. You need to call `draw` after calling `run`");
