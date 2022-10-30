@@ -98,7 +98,7 @@ impl EguiMq {
         &mut self,
         gl_p_ctx: &mut gl_p::Context,
         win_ctx: &mut gl_p::window::WindowContext,
-        ui_work: impl FnOnce(egui::Context) -> ()
+        mut ui_work: impl FnMut(egui::Context) -> ()
     ) {
         self.on_frame_start(gl_p_ctx);
         ui_work(self.egui_ctx.clone());
