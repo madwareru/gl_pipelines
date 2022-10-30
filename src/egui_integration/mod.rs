@@ -36,7 +36,7 @@ impl EguiMq {
         &self.egui_ctx
     }
 
-    fn on_frame_start(
+    pub fn on_frame_start(
         &mut self,
         gl_p_ctx: &mut gl_p::Context
     ) {
@@ -51,7 +51,7 @@ impl EguiMq {
         self.egui_ctx.begin_frame(self.egui_input.take());
     }
 
-    fn on_frame_end(
+    pub fn on_frame_end(
         &mut self,
         win_ctx: &mut gl_p::window::WindowContext
     ) {
@@ -92,17 +92,6 @@ impl EguiMq {
         if !copied_text.is_empty() {
             win_ctx.set_clipboard_content(copied_text);
         }
-    }
-
-    pub fn run(
-        &mut self,
-        gl_p_ctx: &mut gl_p::Context,
-        win_ctx: &mut gl_p::window::WindowContext,
-        mut ui_work: impl FnMut(egui::Context) -> ()
-    ) {
-        self.on_frame_start(gl_p_ctx);
-        ui_work(self.egui_ctx.clone());
-        self.on_frame_end(win_ctx);
     }
 
     /// Call this when you need to draw egui.
