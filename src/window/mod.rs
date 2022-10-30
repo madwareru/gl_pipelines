@@ -231,7 +231,17 @@ pub fn start<THandler: EventHandler>(conf: Conf) {
 
         let event_loop = sdl.event_pump().unwrap();
 
-        (ctx, WindowContext(window, video, sdl.mouse()), event_loop, gl_context)
+        (
+            ctx,
+            WindowContext(
+                window,
+                video,
+                sdl.mouse(),
+                sdl.event().unwrap()
+            ),
+            event_loop,
+            gl_context
+        )
     };
 
     let mut handler = THandler::make(&mut ctx, &mut window_context);
@@ -345,7 +355,12 @@ pub fn start<THandler: EventHandler>(conf: Conf) {
     }
 }
 
-pub struct WindowContext(sdl2::video::Window, sdl2::VideoSubsystem, sdl2::mouse::MouseUtil);
+pub struct WindowContext(
+    sdl2::video::Window,
+    sdl2::VideoSubsystem,
+    sdl2::mouse::MouseUtil,
+    sdl2::EventSubsystem
+);
 
 impl WindowContext {
     pub fn get_clipboard_content(&self) -> Option<String> {
@@ -385,5 +400,12 @@ impl WindowContext {
             CursorIcon::NWSEResize => Cursor::from_system(SystemCursor::SizeNWSE),
         }.unwrap();
         cursor.set();
+    }
+
+    pub fn quit(&mut self) {
+        self.3
+            .event_sender()
+            .push_event(sdl2::event::Event::Quit { timestamp: 0 })
+            .unwrap();
     }
 }
