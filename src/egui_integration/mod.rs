@@ -32,11 +32,8 @@ impl EguiMq {
         }
     }
 
-    /// Use this to open egui windows, panels etc.
-    /// Can only be used between [`Self::begin_frame`] and [`Self::end_frame`].
-    pub fn egui_ctx(&self) -> &egui::Context { &self.egui_ctx }
 
-    pub fn on_frame_start(
+    fn on_frame_start(
         &mut self,
         gl_p_ctx: &mut gl_p::Context
     ) {
@@ -51,7 +48,7 @@ impl EguiMq {
         self.egui_ctx.begin_frame(self.egui_input.take());
     }
 
-    pub fn on_frame_end(
+    fn on_frame_end(
         &mut self,
         win_ctx: &mut gl_p::window::WindowContext
     ) {
@@ -92,6 +89,17 @@ impl EguiMq {
         if !copied_text.is_empty() {
             win_ctx.set_clipboard_content(copied_text);
         }
+    }
+
+    pub fn run(
+        &mut self, 
+        gl_p_ctx: &mut gl_p::Context,
+        win_ctx: &mut gl_p::window::WindowContext,
+        ui_work: impl FnOnce(egui::Context) -> ()
+    ) {
+        self.on_frame_start(gl_p_ctx);
+        ui_work(self.egui_ctx.clone());
+        self.on_frame_end(win_ctx);
     }
 
     /// Call this when you need to draw egui.

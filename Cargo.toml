@@ -1,16 +1,16 @@
 [package]
 name = "gl_pipelines"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-glow = { git = "https://github.com/madwareru/glow" }
 bytemuck = "1.12"
-copypasta = "0.8"
-lazy_static = "1.4"
 webbrowser = "0.8"
+
+[dependencies.glow]
+git = "https://github.com/madwareru/glow"
 
 [dependencies.egui]
 features = ["bytemuck"]
