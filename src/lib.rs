@@ -104,7 +104,7 @@ impl Context {
         self.dpi = (horizontal_dpi, vertical_dpi);
     }
 
-    pub(crate) fn get_dpi(&self) -> (f32, f32) {
+    pub fn get_dpi(&self) -> (f32, f32) {
         self.dpi
     }
 
