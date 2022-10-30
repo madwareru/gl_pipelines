@@ -3,7 +3,7 @@ use gl_pipelines::{
     Bindings, Buffer, BufferLayout, BufferType, Context, Pipeline, Shader, Texture, TextureKind,
     VertexAttribute, VertexFormat
 };
-use gl_pipelines::window::{Conf, EventHandler, WindowContext};
+use gl_pipelines::window::{Conf, EventHandler, SimpleEventHandler, WindowContext};
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -29,6 +29,42 @@ struct Stage {
 }
 
 impl EventHandler for Stage {
+    fn update(&mut self, _ctx: &mut Context, _win_ctx: &mut WindowContext) {}
+
+    fn draw(&mut self, ctx: &mut Context, _win_ctx: &mut WindowContext) {
+        ctx.begin_default_pass(Default::default());
+
+        ctx.apply_pipeline(&self.pipeline);
+        ctx.apply_bindings(&self.bindings);
+
+        let t = {
+            use std::time::SystemTime;
+
+            let time = SystemTime::now()
+                .duration_since(SystemTime::UNIX_EPOCH)
+                .unwrap_or_else(|e| panic!("{}", e));
+            time.as_secs_f64()
+        };
+
+        for i in 0..10 {
+            let t = t + i as f64 * 0.3;
+
+            ctx.apply_uniforms(&shader::Uniforms {
+                offset: (t.sin() as f32 * 0.5, (t * 3.).cos() as f32 * 0.5),
+            });
+            ctx.draw(0, 6, 1);
+        }
+        ctx.end_render_pass();
+
+        ctx.commit_frame();
+    }
+
+    fn char_event(&mut self, _ctx: &mut Context, _win_ctx: &mut WindowContext, character: char) {
+        println!("{}", character);
+    }
+}
+
+impl SimpleEventHandler for Stage {
     fn make(ctx: &mut Context, _win_ctx: &mut WindowContext) -> Stage {
         let vertices: [Vertex; 4] = [
             Vertex { pos : Vec2 { x: -0.5, y: -0.5 }, uv: Vec2 { x: 0., y: 0. } },
@@ -87,40 +123,6 @@ impl EventHandler for Stage {
         );
 
         Stage { pipeline, bindings }
-    }
-
-    fn update(&mut self, _ctx: &mut Context, _win_ctx: &mut WindowContext) {}
-
-    fn draw(&mut self, ctx: &mut Context, _win_ctx: &mut WindowContext) {
-        ctx.begin_default_pass(Default::default());
-
-        ctx.apply_pipeline(&self.pipeline);
-        ctx.apply_bindings(&self.bindings);
-
-        let t = {
-            use std::time::SystemTime;
-
-            let time = SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap_or_else(|e| panic!("{}", e));
-            time.as_secs_f64()
-        };
-
-        for i in 0..10 {
-            let t = t + i as f64 * 0.3;
-
-            ctx.apply_uniforms(&shader::Uniforms {
-                offset: (t.sin() as f32 * 0.5, (t * 3.).cos() as f32 * 0.5),
-            });
-            ctx.draw(0, 6, 1);
-        }
-        ctx.end_render_pass();
-
-        ctx.commit_frame();
-    }
-
-    fn char_event(&mut self, _ctx: &mut Context, _win_ctx: &mut WindowContext, character: char) {
-        println!("{}", character);
     }
 }
 

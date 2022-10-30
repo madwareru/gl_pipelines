@@ -1,10 +1,17 @@
 use sdl2::event::WindowEvent;
+use sdl2::EventPump;
 use sdl2::keyboard::{Mod};
 use crate::Context;
 
-pub trait EventHandler {
+pub trait SimpleEventHandler : EventHandler {
     fn make(_gfx_ctx: &mut Context, _win_ctx: &mut WindowContext) -> Self;
+}
 
+pub trait ParametrizedEventHandler<TParameter> : EventHandler {
+    fn make(_gfx_ctx: &mut Context, _win_ctx: &mut WindowContext, extra_param: TParameter) -> Self;
+}
+
+pub trait EventHandler {
     // +
     fn update(&mut self, _gfx_ctx: &mut Context, _win_ctx: &mut WindowContext);
 
@@ -113,6 +120,7 @@ impl From<Mod> for KeyMods {
 
 pub use sdl2::keyboard::Keycode as KeyCode;
 use sdl2::mouse::{Cursor, SystemCursor};
+use sdl2::video::GLContext;
 
 #[derive(Debug, Copy, Clone, PartialEq, Hash, Eq)]
 pub enum MouseButton {
@@ -186,66 +194,91 @@ impl Default for Conf {
     }
 }
 
-pub fn start<THandler: EventHandler>(conf: Conf) {
+fn make_ctx_and_other_goodies(conf: &Conf) -> (Context, WindowContext, EventPump, GLContext) {
+    let sdl = sdl2::init().unwrap();
+    let video = sdl.video().unwrap();
+    let gl_attr = video.gl_attr();
+    gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
+    gl_attr.set_context_version(3, 2);
+    gl_attr.set_multisample_buffers(conf.sample_buffers);
+    gl_attr.set_multisample_samples(conf.sample_count);
+
+    let mut window_builder = video.window(
+        &conf.window_title,
+        conf.window_width as _,
+        conf.window_height as _
+    );
+
+    window_builder.opengl();
+
+    if conf.window_resizable {
+        window_builder.resizable();
+    }
+
+    if conf.high_dpi {
+        window_builder.allow_highdpi();
+    }
+
+    if conf.fullscreen {
+        window_builder.fullscreen();
+    }
+
+    let window = window_builder.build().unwrap();
+
+    let gl_context = window.gl_create_context().unwrap();
+
+    let mut ctx = Context::new_from_sdl2(&video, conf.window_width, conf.window_height);
+
+    let drawable_size = window.drawable_size();
+
+    ctx.set_dpi_info(
+        drawable_size.0 as f32 / conf.window_width as f32,
+        drawable_size.1 as f32 / conf.window_height as f32
+    );
+
+    let event_loop = sdl.event_pump().unwrap();
+
+    (
+        ctx,
+        WindowContext(
+            window,
+            video,
+            sdl.mouse(),
+            sdl.event().unwrap()
+        ),
+        event_loop,
+        gl_context
+    )
+}
+
+pub fn start<THandler: SimpleEventHandler>(conf: Conf) {
     let (mut ctx, mut window_context, mut events_loop, _gl_context) = {
-        let sdl = sdl2::init().unwrap();
-        let video = sdl.video().unwrap();
-        let gl_attr = video.gl_attr();
-        gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
-        gl_attr.set_context_version(3, 2);
-        gl_attr.set_multisample_buffers(conf.sample_buffers);
-        gl_attr.set_multisample_samples(conf.sample_count);
-
-        let mut window_builder = video.window(
-            &conf.window_title,
-            conf.window_width as _,
-            conf.window_height as _
-        );
-
-        window_builder.opengl();
-
-        if conf.window_resizable {
-            window_builder.resizable();
-        }
-
-        if conf.high_dpi {
-            window_builder.allow_highdpi();
-        }
-
-        if conf.fullscreen {
-            window_builder.fullscreen();
-        }
-
-        let window = window_builder.build().unwrap();
-
-        let gl_context = window.gl_create_context().unwrap();
-
-        let mut ctx = Context::new_from_sdl2(&video, conf.window_width, conf.window_height);
-
-        let drawable_size = window.drawable_size();
-
-        ctx.set_dpi_info(
-            drawable_size.0 as f32 / conf.window_width as f32,
-            drawable_size.1 as f32 / conf.window_height as f32
-        );
-
-        let event_loop = sdl.event_pump().unwrap();
-
-        (
-            ctx,
-            WindowContext(
-                window,
-                video,
-                sdl.mouse(),
-                sdl.event().unwrap()
-            ),
-            event_loop,
-            gl_context
-        )
+        make_ctx_and_other_goodies(&conf)
     };
 
     let mut handler = THandler::make(&mut ctx, &mut window_context);
 
+    start_main_loop(&mut ctx, &mut window_context, &mut events_loop, &mut handler);
+}
+
+pub fn start_parametrized<THandler, TParameter>(conf: Conf, extra_parameter: TParameter)
+where THandler: ParametrizedEventHandler<TParameter>
+{
+    let (mut ctx, mut window_context, mut events_loop, _gl_context) = {
+        make_ctx_and_other_goodies(&conf)
+    };
+
+    let mut handler = THandler::make(&mut ctx, &mut window_context, extra_parameter);
+
+    start_main_loop(&mut ctx, &mut window_context, &mut events_loop, &mut handler);
+}
+
+fn start_main_loop<THandler: EventHandler>(
+    mut ctx: &mut Context,
+    mut window_context: &mut WindowContext,
+    events_loop: &mut EventPump,
+    handler: &mut THandler
+) {
     'main_loop: loop {
         {
             for event in events_loop.poll_iter() {
