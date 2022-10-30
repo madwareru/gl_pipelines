@@ -32,7 +32,7 @@ impl EguiMq {
         }
     }
 
-    fn egui_ctx(&self) -> &egui::Context {
+    pub fn egui_ctx(&self) -> &egui::Context {
         &self.egui_ctx
     }
 
