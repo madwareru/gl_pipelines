@@ -32,6 +32,9 @@ impl EguiMq {
         }
     }
 
+    fn egui_ctx(&self) -> &egui::Context {
+        &self.egui_ctx
+    }
 
     fn on_frame_start(
         &mut self,
@@ -92,7 +95,7 @@ impl EguiMq {
     }
 
     pub fn run(
-        &mut self, 
+        &mut self,
         gl_p_ctx: &mut gl_p::Context,
         win_ctx: &mut gl_p::window::WindowContext,
         ui_work: impl FnOnce(egui::Context) -> ()
