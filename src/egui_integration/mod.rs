@@ -41,7 +41,7 @@ impl EguiMq {
         &mut self,
         gl_p_ctx: &mut gl_p::Context,
         win_ctx: &mut gl_p::window::WindowContext,
-        run_ui: impl FnOnce(&mut gl_p::Context, &egui::Context),
+        mut run_ui: impl FnMut(&mut gl_p::Context, &mut gl_p::window::WindowContext, &egui::Context),
     ) {
         input::on_frame_start(&mut self.egui_input, &self.egui_ctx, gl_p_ctx);
 
@@ -53,7 +53,7 @@ impl EguiMq {
 
         let full_output = self
             .egui_ctx
-            .run(self.egui_input.take(), |egui_ctx| run_ui(gl_p_ctx, egui_ctx));
+            .run(self.egui_input.take(), |egui_ctx| run_ui(gl_p_ctx, win_ctx, egui_ctx));
 
         let egui::FullOutput {
             platform_output,
