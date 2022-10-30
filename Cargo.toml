@@ -1,6 +1,6 @@
 [package]
 name = "gl_pipelines"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -13,8 +13,8 @@ lazy_static = "1.4"
 webbrowser = "0.8"
 
 [dependencies.egui]
-features = ["convert_bytemuck"]
-version = "0.15"
+features = ["bytemuck"]
+version = "0.19.0"
 
 [dependencies.sdl2]
 features = ["bundled", "static-link"]

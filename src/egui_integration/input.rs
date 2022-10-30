@@ -1,6 +1,10 @@
 use crate as gl_p;
 
-pub fn on_frame_start(egui_input: &mut egui::RawInput, gl_p_ctx: &gl_p::Context) {
+pub fn on_frame_start(
+    egui_input: &mut egui::RawInput,
+    _equi_ctx: &egui::Context,
+    gl_p_ctx: &gl_p::Context
+) {
     let screen_size_in_points = gl_p_ctx.get_window_size();
     let pixels_per_point = gl_p_ctx.get_dpi();
 
