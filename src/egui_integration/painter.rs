@@ -6,15 +6,6 @@ pub struct CallbackFn {
     f: Box<dyn Fn(egui::PaintCallbackInfo, &mut Context) + Sync + Send>,
 }
 
-impl CallbackFn {
-    pub fn new(
-        callback: impl Fn(egui::PaintCallbackInfo, &mut Context) + Sync + Send + 'static,
-    ) -> Self {
-        let f = Box::new(callback);
-        CallbackFn { f }
-    }
-}
-
 pub struct Painter {
     pipeline: Pipeline,
     bindings: Bindings,

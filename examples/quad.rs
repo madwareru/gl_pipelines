@@ -1,7 +1,6 @@
 use bytemuck::Zeroable;
 use gl_pipelines::{
-    Bindings, Buffer, BufferLayout, BufferType, Context, Pipeline, Shader, Texture, TextureKind,
-    VertexAttribute, VertexFormat
+    Bindings, Buffer, BufferLayout, BufferType, Context, Pipeline, Shader, Texture, TextureKind, VertexAttribute, VertexFormat
 };
 use gl_pipelines::window::{Conf, EventHandler, SimpleEventHandler, WindowContext};
 

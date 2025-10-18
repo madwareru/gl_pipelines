@@ -103,12 +103,12 @@ impl TextureFormat {
     }
 
     pub fn size_3d(self, width: u32, height: u32, depth: u32) -> usize {
-        let square = width as usize * height as usize * depth as usize;
+        let cube = width as usize * height as usize * depth as usize;
         match self {
-            TextureFormat::RGB8 => 3 * square,
-            TextureFormat::RGBA8 => 4 * square,
-            TextureFormat::Depth => 2 * square,
-            TextureFormat::Alpha => 1 * square,
+            TextureFormat::RGB8 => 3 * cube,
+            TextureFormat::RGBA8 => 4 * cube,
+            TextureFormat::Depth => 2 * cube,
+            TextureFormat::Alpha => 1 * cube,
         }
     }
 }

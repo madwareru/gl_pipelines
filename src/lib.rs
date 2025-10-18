@@ -25,7 +25,6 @@ pub use types_impl::{
 };
 pub use query_impl::*;
 pub use buffer_impl::*;
-pub use buffer_impl::Buffer;
 use crate::shader_impl::ShaderInternal;
 
 pub const MAX_VERTEX_ATTRIBUTES: usize = 16;
@@ -638,7 +637,7 @@ impl Pipeline {
         } in attributes
         {
             let layout = buffer_layout.get(*buffer_index).unwrap_or_else(|| panic!());
-            let mut cache = buffer_cache
+            let cache = buffer_cache
                 .get_mut(*buffer_index)
                 .unwrap_or_else(|| panic!());
 
@@ -669,7 +668,7 @@ impl Pipeline {
             buffer_index,
         } in attributes
         {
-            let mut buffer_data = &mut buffer_cache
+            let buffer_data = &mut buffer_cache
                 .get_mut(*buffer_index)
                 .unwrap_or_else(|| panic!());
             let layout = buffer_layout.get(*buffer_index).unwrap_or_else(|| panic!());
@@ -728,7 +727,7 @@ impl Pipeline {
     }
 
     pub fn set_blend(&self, ctx: &mut Context, color_blend: Option<BlendState>) {
-        let mut pipeline = &mut ctx.pipelines[self.0];
+        let pipeline = &mut ctx.pipelines[self.0];
         pipeline.params.color_blend = color_blend;
     }
 }
