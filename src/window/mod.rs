@@ -199,7 +199,7 @@ fn make_ctx_and_other_goodies(conf: &Conf) -> (Context, WindowContext, EventPump
     let video = sdl.video().unwrap();
     let gl_attr = video.gl_attr();
     gl_attr.set_context_profile(sdl3::video::GLProfile::Core);
-    gl_attr.set_context_version(3, 2);
+    gl_attr.set_context_version(3, 3);
     gl_attr.set_multisample_buffers(conf.sample_buffers);
     gl_attr.set_multisample_samples(conf.sample_count);
 
@@ -227,7 +227,7 @@ fn make_ctx_and_other_goodies(conf: &Conf) -> (Context, WindowContext, EventPump
 
     let gl_context = window.gl_create_context().unwrap();
 
-    let mut ctx = Context::new_from_sdl3(&video, conf.window_width, conf.window_height);
+    let mut ctx = Context::new_from_sdl2(&video, conf.window_width, conf.window_height);
 
     let drawable_size = window.size();
 
