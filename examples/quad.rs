@@ -128,6 +128,9 @@ impl SimpleEventHandler for Stage {
 fn main() {
     gl_pipelines::window::start::<Stage>(
         Conf {
+            window_width: 1920,
+            window_height: 1080,
+            fullscreen: true,
             high_dpi: true,
             .. Default::default()
         }

@@ -42,8 +42,8 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new_from_sdl2(video: &sdl3::VideoSubsystem, default_w: i32, default_h: i32) -> Self {
-        Self::new_impl(&GlowContext::new_from_sdl2_video(video), default_w, default_h)
+    pub fn new_from_sdl3(video: &sdl3::VideoSubsystem, default_w: i32, default_h: i32) -> Self {
+        Self::new_impl(&GlowContext::new_from_sdl3_video(video), default_w, default_h)
     }
 
     fn new_impl(glow_ctx: &GlowContext, default_w: i32, default_h: i32) -> Self {

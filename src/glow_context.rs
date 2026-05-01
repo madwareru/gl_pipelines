@@ -1,5 +1,4 @@
 use std::rc::Rc;
-use sdl3::sys::everything::SDL_FunctionPointer;
 
 /// The context required to interact with the GPU
 #[derive(Clone)]
@@ -10,7 +9,7 @@ pub(crate) struct ContextContents {
 }
 
 impl GlowContext {
-    pub(crate) fn new_from_sdl2_video(video: &sdl3::VideoSubsystem) -> Self {
+    pub(crate) fn new_from_sdl3_video(video: &sdl3::VideoSubsystem) -> Self {
         GlowContext(Rc::new(ContextContents {
             gl: unsafe {
                 let gl = glow::
