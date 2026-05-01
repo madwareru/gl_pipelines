@@ -1,6 +1,6 @@
-use sdl2::event::WindowEvent;
-use sdl2::EventPump;
-use sdl2::keyboard::{Mod};
+use sdl3::event::WindowEvent;
+use sdl3::EventPump;
+use sdl3::keyboard::{Mod};
 use crate::Context;
 
 pub trait SimpleEventHandler : EventHandler {
@@ -118,9 +118,9 @@ impl From<Mod> for KeyMods {
     }
 }
 
-pub use sdl2::keyboard::Keycode as KeyCode;
-use sdl2::mouse::{Cursor, SystemCursor};
-use sdl2::video::GLContext;
+pub use sdl3::keyboard::Keycode as KeyCode;
+use sdl3::mouse::{Cursor, SystemCursor};
+use sdl3::video::GLContext;
 
 #[derive(Debug, Copy, Clone, PartialEq, Hash, Eq)]
 pub enum MouseButton {
@@ -195,11 +195,11 @@ impl Default for Conf {
 }
 
 fn make_ctx_and_other_goodies(conf: &Conf) -> (Context, WindowContext, EventPump, GLContext) {
-    let sdl = sdl2::init().unwrap();
+    let sdl = sdl3::init().unwrap();
     let video = sdl.video().unwrap();
     let gl_attr = video.gl_attr();
-    gl_attr.set_context_profile(sdl2::video::GLProfile::Core);
-    gl_attr.set_context_version(3, 2);
+    gl_attr.set_context_profile(sdl3::video::GLProfile::Core);
+    gl_attr.set_context_version(3, 3);
     gl_attr.set_multisample_buffers(conf.sample_buffers);
     gl_attr.set_multisample_samples(conf.sample_count);
 
@@ -216,7 +216,7 @@ fn make_ctx_and_other_goodies(conf: &Conf) -> (Context, WindowContext, EventPump
     }
 
     if conf.high_dpi {
-        window_builder.allow_highdpi();
+        window_builder.high_pixel_density();
     }
 
     if conf.fullscreen {
@@ -229,7 +229,7 @@ fn make_ctx_and_other_goodies(conf: &Conf) -> (Context, WindowContext, EventPump
 
     let mut ctx = Context::new_from_sdl2(&video, conf.window_width, conf.window_height);
 
-    let drawable_size = window.drawable_size();
+    let drawable_size = window.size();
 
     ctx.set_dpi_info(
         drawable_size.0 as f32 / conf.window_width as f32,
@@ -283,59 +283,59 @@ fn start_main_loop<THandler: EventHandler>(
         {
             for event in events_loop.poll_iter() {
                 match event {
-                    sdl2::event::Event::Quit { .. } => {
+                    sdl3::event::Event::Quit { .. } => {
                         handler.quit_requested_event(&mut ctx, &mut window_context);
                         break 'main_loop;
                     }
-                    sdl2::event::Event::MouseMotion { x, y, xrel, yrel, .. } => {
-                        handler.mouse_motion_event(&mut ctx, &mut window_context, x, y, xrel, yrel);
+                    sdl3::event::Event::MouseMotion { x, y, xrel, yrel, .. } => {
+                        handler.mouse_motion_event(&mut ctx, &mut window_context, x as _, y as _, xrel as _, yrel as _);
                     }
-                    sdl2::event::Event::MouseWheel { x, y, direction, .. } => {
+                    sdl3::event::Event::MouseWheel { x, y, direction, .. } => {
                         handler.mouse_wheel_event(
                             &mut ctx,
                             &mut window_context,
-                            x,
-                            y,
+                            x as _,
+                            y as _,
                             match direction {
-                                sdl2::mouse::MouseWheelDirection::Normal => MouseWheelDirection::Normal,
-                                sdl2::mouse::MouseWheelDirection::Flipped => MouseWheelDirection::Flipped,
-                                sdl2::mouse::MouseWheelDirection::Unknown(what) => MouseWheelDirection::Unknown(what)
+                                sdl3::mouse::MouseWheelDirection::Normal => MouseWheelDirection::Normal,
+                                sdl3::mouse::MouseWheelDirection::Flipped => MouseWheelDirection::Flipped,
+                                sdl3::mouse::MouseWheelDirection::Unknown(what) => MouseWheelDirection::Unknown(what)
                             })
                     }
-                    sdl2::event::Event::MouseButtonDown { mouse_btn, clicks, x, y, .. } => {
+                    sdl3::event::Event::MouseButtonDown { mouse_btn, clicks, x, y, .. } => {
                         handler.mouse_button_down_event(
                             &mut ctx, &mut window_context,
                             match mouse_btn {
-                                sdl2::mouse::MouseButton::Left => MouseButton::Left,
-                                sdl2::mouse::MouseButton::Middle => MouseButton::Middle,
-                                sdl2::mouse::MouseButton::Right => MouseButton::Right,
+                                sdl3::mouse::MouseButton::Left => MouseButton::Left,
+                                sdl3::mouse::MouseButton::Middle => MouseButton::Middle,
+                                sdl3::mouse::MouseButton::Right => MouseButton::Right,
                                 _ => MouseButton::Unknown
                             },
-                            x,
-                            y,
+                            x as _,
+                            y as _,
                             clicks
                         )
                     }
-                    sdl2::event::Event::TextInput { text, .. } => {
+                    sdl3::event::Event::TextInput { text, .. } => {
                         for chr in text.chars() {
                             handler.char_event(&mut ctx, &mut window_context, chr);
                         }
                     }
-                    sdl2::event::Event::MouseButtonUp { mouse_btn, clicks, x, y, .. } => {
+                    sdl3::event::Event::MouseButtonUp { mouse_btn, clicks, x, y, .. } => {
                         handler.mouse_button_up_event(
                             &mut ctx, &mut window_context,
                             match mouse_btn {
-                                sdl2::mouse::MouseButton::Left => MouseButton::Left,
-                                sdl2::mouse::MouseButton::Middle => MouseButton::Middle,
-                                sdl2::mouse::MouseButton::Right => MouseButton::Right,
+                                sdl3::mouse::MouseButton::Left => MouseButton::Left,
+                                sdl3::mouse::MouseButton::Middle => MouseButton::Middle,
+                                sdl3::mouse::MouseButton::Right => MouseButton::Right,
                                 _ => MouseButton::Unknown
                             },
-                            x,
-                            y,
+                            x as _,
+                            y as _,
                             clicks
                         )
                     }
-                    sdl2::event::Event::KeyDown { keycode, keymod, repeat, .. } => {
+                    sdl3::event::Event::KeyDown { keycode, keymod, repeat, .. } => {
                         if let Some(key_code) = keycode {
                             handler.key_down_event(
                                 &mut ctx, &mut window_context,
@@ -345,7 +345,7 @@ fn start_main_loop<THandler: EventHandler>(
                             );
                         }
                     }
-                    sdl2::event::Event::KeyUp { keycode, keymod, .. } => {
+                    sdl3::event::Event::KeyUp { keycode, keymod, .. } => {
                         if let Some(key_code) = keycode {
                             handler.key_up_event(
                                 &mut ctx, &mut window_context,
@@ -354,28 +354,21 @@ fn start_main_loop<THandler: EventHandler>(
                             );
                         }
                     }
-                    sdl2::event::Event::Window { win_event: WindowEvent::Resized(new_w, new_h), .. } => {
+                    sdl3::event::Event::Window { win_event: WindowEvent::Resized(new_w, new_h), .. } => {
                         ctx.update_window_size(new_w, new_h);
                         handler.resize_event(&mut ctx, &mut window_context, new_w, new_h);
                     }
-                    sdl2::event::Event::Window { win_event: WindowEvent::SizeChanged(new_w, new_h), .. } => {
-                        ctx.update_window_size(new_w, new_h);
-                        handler.resize_event(&mut ctx, &mut window_context, new_w, new_h);
-                    }
-                    sdl2::event::Event::Window { win_event: WindowEvent::Minimized, .. } => {
+                    sdl3::event::Event::Window { win_event: WindowEvent::Minimized, .. } => {
                         handler.window_minimized_event(&mut ctx, &mut window_context);
                     }
-                    sdl2::event::Event::Window { win_event: WindowEvent::Restored, .. } => {
+                    sdl3::event::Event::Window { win_event: WindowEvent::Restored, .. } => {
                         handler.window_restored_event(&mut ctx, &mut window_context);
                     }
-                    sdl2::event::Event::Window { win_event: WindowEvent::FocusLost, .. } => {
+                    sdl3::event::Event::Window { win_event: WindowEvent::FocusLost, .. } => {
                         handler.window_lost_focus_event(&mut ctx, &mut window_context);
                     }
-                    sdl2::event::Event::Window { win_event: WindowEvent::FocusGained, .. } => {
+                    sdl3::event::Event::Window { win_event: WindowEvent::FocusGained, .. } => {
                         handler.window_gained_focus_event(&mut ctx, &mut window_context);
-                    }
-                    sdl2::event::Event::Window { win_event: WindowEvent::TakeFocus, .. } => {
-                        handler.window_take_focus_event(&mut ctx, &mut window_context);
                     }
                     _ => {}
                 }
@@ -389,10 +382,10 @@ fn start_main_loop<THandler: EventHandler>(
 }
 
 pub struct WindowContext(
-    sdl2::video::Window,
-    sdl2::VideoSubsystem,
-    sdl2::mouse::MouseUtil,
-    sdl2::EventSubsystem
+    sdl3::video::Window,
+    sdl3::VideoSubsystem,
+    sdl3::mouse::MouseUtil,
+    sdl3::EventSubsystem
 );
 
 impl WindowContext {
@@ -438,7 +431,7 @@ impl WindowContext {
     pub fn quit(&mut self) {
         self.3
             .event_sender()
-            .push_event(sdl2::event::Event::Quit { timestamp: 0 })
+            .push_event(sdl3::event::Event::Quit { timestamp: 0 })
             .unwrap();
     }
 }
