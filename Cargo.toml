@@ -1,6 +1,6 @@
 [package]
 name = "gl_pipelines"
-version = "0.3.6"
+version = "0.3.7"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -17,4 +17,5 @@ features = ["bytemuck"]
 version = "0.19.0"
 
 [dependencies.sdl2]
-version = "0.37"
+features = ["bundled", "static-link"]
+version = "0.38"
